@@ -30,7 +30,8 @@ declare namespace CacheableResponse {
     get: (
       opts: Options
     ) => Promise<
-      (Optional<Cache<Data>, "etag" | "ttl" | "createdAt"> & GetReturnProps) | null
+      | (Optional<Cache<Data>, "etag" | "ttl" | "createdAt"> & GetReturnProps)
+      | null
     >;
 
     /**
@@ -39,17 +40,25 @@ declare namespace CacheableResponse {
     send: (
       opts: GetReturnProps & { data: Data } & Pick<Options, "req" | "res">
     ) => any;
-
+    /**
+     * defaultvalue: 'force'
+     * The name of the query parameter to be used for skipping the cache copy in an intentional way.
+     * */
+    bypassQueryParameter?: string;
     /** Cache provider, default to 'keyv' */
     cache?: CacheProvider<GetReturnProps, Data>;
 
     /** Enable compress, default false */
     compress?: boolean;
 
-    /** Get cache key from request context */
-    getKey?: (opts: Options) => string;
-
     /**
+     * @deprecated Use `key` instead.
+     *
+     *  Get cache key from request context */
+    getKey?: (opts: Options) => string;
+    key?: (opts: Options) => string;
+    /**
+     * @deprecated The method should not be used anymore, use `staleTtl` instead.
      * Number of milliseconds that indicates grace period after response cache expiration for refreshing it in the background.
      *  The latency of the refresh is hidden from the user.
      * You can provide a function, it will receive ttl as first parameter or a fixed value.
@@ -59,6 +68,19 @@ declare namespace CacheableResponse {
 
     /** ttl default to 7200000 */
     ttl?: number;
+
+    /**
+     * staleTtl default to 3600000
+     *
+     * Number of milliseconds that indicates grace period after response cache expiration for refreshing it in the background.
+     *
+     * the latency of the refresh is hidden from the user.
+     *
+     * The value will be associated with stale-while-revalidate directive.
+     *
+     * You can pass a false to disable it.
+     */
+    staleTtl?: number | boolean;
 
     /** Compress opts pass through to compress-brotli */
     serialize?: (o: any) => string;
